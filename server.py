@@ -488,7 +488,20 @@ async def update_me(body: UpdateMeBody, u: UserPublic = Depends(get_current_user
     return user_public(doc)
 
 
-class StatsResponse(BaseModel):
+@api.delete("/users/me")
+async def delete_my_account(u: UserPublic = Depends(get_current_user)):
+    sub = u.subscription or {}
+    sub_id = sub.get("stripe_id") if isinstance(sub, dict) else None
+    if sub_id:
+        try:
+            stripe.Subscription.delete(sub_id)
+        except Exception:
+            pass
+    if u.family_id:
+        await db.families.delete_one({"id": u.family_id})
+    await db.users.delete_one({"id": u.id})
+    return {"ok": True}
+    class StatsResponse(BaseModel):
     streak_days: int
     prayers_this_month: int
     prayers_target: int
