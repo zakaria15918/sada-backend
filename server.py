@@ -501,7 +501,7 @@ async def delete_my_account(u: UserPublic = Depends(get_current_user)):
         await db.families.delete_one({"id": u.family_id})
     await db.users.delete_one({"id": u.id})
     return {"ok": True}
-    class StatsResponse(BaseModel):
+class StatsResponse(BaseModel):
     streak_days: int
     prayers_this_month: int
     prayers_target: int
